@@ -1,5 +1,5 @@
 ccToFrejya: ccToFrejya.c
-	gcc -o ccToFrejya -static ccToFrejya.c
+	gcc -o ccToFrejya -g -static ccToFrejya.c
 
 test: ccToFrejya
 	./test.sh
