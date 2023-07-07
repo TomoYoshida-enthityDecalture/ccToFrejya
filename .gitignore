@@ -1,0 +1,6 @@
+*~
+*.o
+tmp*
+.vscode
+a.out
+ccToFrejya
