@@ -25,10 +25,18 @@ struct Token {
 //current token
 Token *current;
 
-//error
-void error(char *fmt, ...) {
+//input program
+char *user_input;
+
+//error_at
+void error_at(char *loc, char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
+
+    int pos = loc - user_input;
+    fprintf(stderr, "%s\n", user_input);
+    fprintf(stderr, "%*s", pos, " ");
+    fprintf(stderr, "^ "); 
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, "\n");
     exit(1);
@@ -42,13 +50,13 @@ bool consume(char op) {
 
 void expected(char op) {
     if (current->type != TK_RESERVED || current->str[0] != op) 
-        error("Not %c\n", op);
+        error_at(current->str, "Not %c\n", op);
     current = current->next;
 }
 
 int expected_num() {
     if (current->type != TK_NUM) 
-        error("Not number\n");
+        error_at(current->str, "Not number\n");
     int val = current->num;
     current = current->next;
     return val;
@@ -82,7 +90,7 @@ Token *tokenize(char *p) {
             cur = new_token(TK_NUM, cur, p);
             cur->num = strtol(p, &p, 10);
         } else {
-            error("Cannot tokenize");
+            error_at(current->str, "Cannot tokenize");
         }
     }
 
@@ -96,6 +104,7 @@ int main(int args, char **argv) {
         return 1;
     }
 
+    user_input = argv[1];
     current = tokenize(argv[1]);
 
     printf(".intel_syntax noprefix\n");
