@@ -2,13 +2,13 @@ CFLAGS=-std=c11 -g -static
 SRCS=$(wildcard *.c)
 OBJS=$(SRCS:.c=.o)
 
-ccToFrejya: $(OBJS)
-	$(CC) -o ccToFrejya $(OBJS) $(LDFLSGS)
+ccToFreyja: $(OBJS)
+	$(CC) -o ccToFreyja $(OBJS) $(LDFLSGS)
 
-test: ccToFrejya
+test: ccToFreyja
 	./test.sh
 
 clean: 
-	rm -f ccToFrejya *.o *~ tmp*
+	rm -f ccToFreyja *.o *~ tmp*
 
 .PHONY: test clean
