@@ -6,6 +6,8 @@
 #include <string.h>
 #include "ccToFreyja.h"
 
+Node *code[100];
+
 //generate new node
 Node *new_node(Nodetype type, Node *lhs, Node *rhs) {
     Node *new = calloc(1, sizeof(Node));
@@ -25,7 +27,17 @@ Node *new_node_num(int val) {
     return new;
 }
 
+Node *new_node_ident(char *val) {
+    Node *new = calloc(1, sizeof(Node));
+    new->type = ND_LVAR;
+    new->offset = (*val - 'a' + 1) * 8;
+    return new;
+}
+
+void program();
+Node *stmt();
 Node *expr();
+Node *assign();
 Node *equality();
 Node *relation();
 Node *add();
@@ -33,8 +45,31 @@ Node *mul();
 Node *unary();
 Node *primary();
 
+void program() {
+    int i = 0;
+    while (!at_eof()) {
+        code[i++] = stmt();
+    }
+    code[i] = NULL;
+}
+
+Node *stmt() {
+    Node *node = expr();
+    expected(";");
+    return node;
+}
+
 Node *expr() {
-    return equality();
+    return assign();
+}
+
+Node *assign() {
+    Node *node = equality();
+
+    if (consume("=")) {
+        node = new_node(ND_ASSIGN, node, assign());
+    }
+    return node;
 }
 
 Node *equality() {
@@ -92,6 +127,8 @@ Node *primary() {
         Node *node = expr();
         expected(")");
         return node;
+    } else if (consume_ident()) {
+        return new_node_ident(expected_ident()); 
     } else {
         return new_node_num(expected_num());
     }

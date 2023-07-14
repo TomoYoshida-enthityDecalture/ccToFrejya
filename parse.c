@@ -11,6 +11,15 @@ Token *current;
 char *user_input;
 
 //error_at
+void error(char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+
+    vfprintf(stderr, fmt, ap);
+    fprintf(stderr, "\n");
+    exit(1);
+}
+
 void error_at(char *loc, char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
@@ -36,6 +45,18 @@ void expected(char *op) {
     || memcmp(current->str, op, current->len)) 
         error_at(current->str, "Not %c\n", op);
     current = current->next;
+}
+
+bool consume_ident() {
+    if (current->type != TK_IDENT) 
+        return false;
+    return true;
+}
+
+char *expected_ident() {
+    char *str = current->str;
+    current = current->next;
+    return str;
 }
 
 int expected_num() {
@@ -75,8 +96,11 @@ Token *tokenize(char *p) {
             cur = new_token(TK_RESERVED, cur, p, 2);
             p += 2;
         } else if (*p == '>' || *p == '<' || *p == '+' 
-        || *p == '-' || *p == '*' || *p == '/' || *p == '(' || *p == ')') {
+        || *p == '-' || *p == '*' || *p == '/' || *p == '(' || *p == ')'
+        || *p == '=' || *p == ';') {
             cur = new_token(TK_RESERVED, cur, p++, 1);
+        } else if ('a' <= *p && *p <= 'z') {
+            cur = new_token(TK_IDENT, cur, p++, 1);
         } else if (isdigit(*p)) {
             cur = new_token(TK_NUM, cur, p, 1);
             cur->num = strtol(p, &p, 10);
