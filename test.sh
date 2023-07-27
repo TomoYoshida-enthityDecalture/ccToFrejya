@@ -4,7 +4,7 @@ assert() {
 	input="$2"
 
 	./ccToFreyja "$input" > tmp.s
-	gcc -o tmp tmp.s
+	gcc -o tmp -z noexecstack tmp.s
 	./tmp
 	actual="$?"
 
