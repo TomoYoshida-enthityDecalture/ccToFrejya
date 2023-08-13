@@ -14,6 +14,7 @@ int main(int args, char **argv) {
 
     user_input = argv[1];
     current = tokenize(argv[1]);
+    init_lvar();
     program();
 
     printf(".intel_syntax noprefix\n");

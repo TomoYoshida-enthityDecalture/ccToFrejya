@@ -20,6 +20,15 @@ struct Token {
     int len; 
 };
 
+typedef struct LVar LVar;
+
+struct LVar {
+    LVar *next;
+    char *name;
+    int len;
+    int offset;
+};
+
 //ll tree Node type
 typedef enum {
     ND_NUM,
@@ -62,12 +71,14 @@ Token *tokenize(char *p);
 void error(char *fmt, ...);
 bool consume(char *op);
 void expected(char *op);
-bool consume_ident();
-char *expected_ident();
+bool expected_ident();
+int consume_indent_len();
+char *consume_ident();
 int expected_num();
 bool at_eof();
 
 //parse
+void init_lvar();
 void program();
 
 //codegen

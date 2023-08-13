@@ -6,130 +6,121 @@
 #include <string.h>
 #include "ccToFreyja.h"
 
-Node *code[100];
+Token *current;
 
-//generate new node
-Node *new_node(Nodetype type, Node *lhs, Node *rhs) {
-    Node *new = calloc(1, sizeof(Node));
+char *user_input;
+
+//error_at
+void error(char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+
+    vfprintf(stderr, fmt, ap);
+    fprintf(stderr, "\n");
+    exit(1);
+}
+
+void error_at(char *loc, char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+
+    int pos = loc - user_input;
+    fprintf(stderr, "%s\n", user_input);
+    fprintf(stderr, "%*s", pos, " ");
+    fprintf(stderr, "^ "); 
+    vfprintf(stderr, fmt, ap);
+    fprintf(stderr, "\n");
+    exit(1);
+}
+
+bool consume(char *op) {
+    if (current->type != TK_RESERVED || strlen(op) != current->len
+    || memcmp(current->str, op, current->len)) return false;
+    current = current->next;
+    return true;
+}
+
+void expected(char *op) {
+    if (current->type != TK_RESERVED || strlen(op) != current->len
+    || memcmp(current->str, op, current->len)) 
+        error_at(current->str, "Not %c\n", op);
+    current = current->next;
+}
+
+bool expected_ident() {
+    if (current->type != TK_IDENT) 
+        return false;
+    return true;
+}
+
+char *consume_ident() {
+    char *str = current->str;
+    return str;
+}
+
+int consume_indent_len() {
+    int len = current->len;
+    return len;
+}
+
+int expected_num() {
+    if (current->type != TK_NUM) 
+        error_at(current->str, "Not number\n");
+    int val = current->num;
+    current = current->next;
+    return val;
+}
+
+bool at_eof() {
+    return current->type == TK_EOF;
+}
+
+//generate a new token and connect to cur
+Token *new_token(Tokentype type, Token *cur, char *str, int len) {
+    Token *new = calloc(1, sizeof(Token));
     new->type = type;
-    new->lhs = lhs;
-    new->rhs = rhs;
-    
+    new->str = str;
+    new->len = len;
+    new->next = NULL;
+    cur->next = new;
     return new;
 }
 
-//generate leaf num
-Node *new_node_num(int val) {
-    Node *new = calloc(1, sizeof(Node));
-    new->type = ND_NUM;
-    new->val = val;
+//tokenize input
+Token *tokenize(char *p) {
+    Token head;
+    head.next = NULL;
+    Token *cur = &head;
 
-    return new;
-}
-
-Node *new_node_ident(char *val) {
-    Node *new = calloc(1, sizeof(Node));
-    new->type = ND_LVAR;
-    new->offset = (*val - 'a' + 1) * 8;
-    return new;
-}
-
-void program();
-Node *stmt();
-Node *expr();
-Node *assign();
-Node *equality();
-Node *relation();
-Node *add();
-Node *mul();
-Node *unary();
-Node *primary();
-
-void program() {
-    int i = 0;
-    while (!at_eof()) {
-        code[i++] = stmt();
+    while (*p) {
+        if (isspace(*p)) {
+            ++p;
+        } else if (strncmp(p, "==", 2) == 0 || strncmp(p, "!=", 2) == 0 
+        || strncmp(p, ">=", 2) == 0 || strncmp(p, "<=", 2) == 0) {
+            cur = new_token(TK_RESERVED, cur, p, 2);
+            p += 2;
+        } else if (*p == '>' || *p == '<' || *p == '+' 
+        || *p == '-' || *p == '*' || *p == '/' || *p == '(' || *p == ')'
+        || *p == '=' || *p == ';') {
+            cur = new_token(TK_RESERVED, cur, p++, 1);
+        } else if (isalpha(*p)) {
+            char *a = p;
+            int i = 0;
+            while (1) {
+                if (isalpha(*(a++))) {
+                    ++i;
+                } else break;
+            }
+            cur = new_token(TK_IDENT, cur, p, i);
+            p += i;
+        } else if (isdigit(*p)) {
+            cur = new_token(TK_NUM, cur, p, 1);
+            cur->num = strtol(p, &p, 10);
+        } else {
+            error_at(current->str, "Cannot tokenize");
+        }
     }
-    code[i] = NULL;
-}
 
-Node *stmt() {
-    Node *node = expr();
-    expected(";");
-    return node;
-}
-
-Node *expr() {
-    return assign();
-}
-
-Node *assign() {
-    Node *node = equality();
-
-    if (consume("=")) {
-        node = new_node(ND_ASSIGN, node, assign());
-    }
-    return node;
-}
-
-Node *equality() {
-    Node *node = relation();
-
-    while (1) {
-        if (consume("==")) node = new_node(ND_EQL, node, relation());
-        else if (consume("!=")) node = new_node(ND_NEQ, node, relation());
-        else return node;
-    }
-}
-
-Node *relation() {
-    Node *node = add();
-
-    while (1) {
-        if (consume("<=")) node = new_node(ND_LEQ, node, add());
-        else if (consume(">=")) node = new_node(ND_GEQ, node, add());
-        else if (consume("<")) node = new_node(ND_LE, node, add());
-        else if (consume(">")) node = new_node(ND_GE, node, add());
-        else return node;
-    }
-}
-
-Node *add() {
-    Node *node = mul();
-
-    while (1) {
-        if (consume("+")) node = new_node(ND_ADD, node, mul());
-        else if (consume("-")) node = new_node(ND_SUB, node, mul());
-        else return node;
-    }
-}
-
-Node *mul() {
-    Node *node = unary();
-    
-    while (1) {
-        if (consume("*")) node = new_node(ND_MUL, node, unary());
-        else if (consume("/")) node = new_node(ND_DIV, node, unary());
-        else return node;
-    }
-}
-
-Node *unary() {
-    if (consume("+")) {
-        return primary();
-    } else if (consume("-")) {
-        return new_node(ND_SUB, new_node_num(0), primary());
-    } else return primary();
-}
-
-Node *primary() {
-    if (consume("(")) {
-        Node *node = expr();
-        expected(")");
-        return node;
-    } else if (consume_ident()) {
-        return new_node_ident(expected_ident()); 
-    } else {
-        return new_node_num(expected_num());
-    }
+    new_token(TK_EOF, cur, p, 1);
+    return head.next;
 }
