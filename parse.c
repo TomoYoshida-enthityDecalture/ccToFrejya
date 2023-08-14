@@ -87,7 +87,11 @@ void program() {
 }
 
 Node *stmt() {
-    Node *node = expr();
+    Node *node;
+    if (consume_return())
+        node = new_node(ND_RETURN, expr(), new_node_num(0));        
+    else node = expr();
+
     expected(";");
     return node;
 }

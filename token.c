@@ -43,13 +43,12 @@ bool consume(char *op) {
 void expected(char *op) {
     if (current->type != TK_RESERVED || strlen(op) != current->len
     || memcmp(current->str, op, current->len)) 
-        error_at(current->str, "Not %c\n", op);
+        error_at(current->str, "Not %s\n", op);
     current = current->next;
 }
 
 bool expected_ident() {
-    if (current->type != TK_IDENT) 
-        return false;
+    if (current->type != TK_IDENT) return false;
     return true;
 }
 
@@ -61,6 +60,12 @@ char *consume_ident() {
 int consume_indent_len() {
     int len = current->len;
     return len;
+}
+
+bool consume_return() {
+    if (current->type != TK_RETURN) return false;
+    current = current->next;
+    return true;
 }
 
 int expected_num() {
@@ -103,6 +108,9 @@ Token *tokenize(char *p) {
         || *p == '-' || *p == '*' || *p == '/' || *p == '(' || *p == ')'
         || *p == '=' || *p == ';') {
             cur = new_token(TK_RESERVED, cur, p++, 1);
+        } else if (strncmp(p, "return", 6) == 0 && !isalpha(p[6]) && !isdigit(p[6]) && p[6] != '_' ) {
+            cur = new_token(TK_RETURN, cur, p, 6);
+            p += 6;
         } else if (isalpha(*p)) {
             char *a = p;
             int i = 0;

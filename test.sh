@@ -23,5 +23,6 @@ assert 1 "5 + 1 >= 1 * 4;"
 assert 1 "5 + 3 != 2 * 6;"
 assert 4 "a = 5; a + (-1);"
 assert 1 "foo = 5; var = 1; foo + var == 6;"
+assert 50 "mal = 10; meg = 20 * (3 - 1); return mal + meg; return 2;"
 
 echo OK 
