@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "ccToFreyja.h"
+#include "token.h"
 
 Token *current;
 

@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "ccToFreyja.h"
+#include "parse.h"
 
 Node *code[100];
 

@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "ccToFreyja.h"
+#include "codegen.h"
 
 //generate code
 void gen_lval(Node *node) {
