@@ -6,7 +6,7 @@ typedef enum {
     TK_RESERVED,
     TK_IDENT,
     TK_NUM,
-    TK_RETURN,
+    TK_KEYWORD,
     TK_EOF
 } Tokentype;
 
@@ -28,7 +28,7 @@ bool consume(char *op);
 void expected(char *op);
 bool expected_ident();
 int consume_indent_len();
-bool consume_return();
+bool consume_keyword(char *op);
 char *consume_ident();
 int expected_num();
 bool at_eof();

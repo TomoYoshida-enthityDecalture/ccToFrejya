@@ -26,6 +26,12 @@ typedef enum {
     ND_ASSIGN,
     ND_IDENT,
     ND_LVAR,
+    ND_IF,
+    ND_ELSE,
+    ND_WHILE,
+    ND_FOR,
+    ND_FOR1,
+    ND_FOR2,
     ND_RETURN
 } Nodetype;
 

@@ -89,11 +89,41 @@ void program() {
 
 Node *stmt() {
     Node *node;
-    if (consume_return())
-        node = new_node(ND_RETURN, expr(), new_node_num(0));        
-    else node = expr();
 
-    expected(";");
+    if (consume_keyword("if")) {
+        expected("(");
+        Node *ifn = expr();
+        expected(")");
+        Node *stm = stmt();
+        if (consume_keyword("else")) {
+            node = new_node(ND_IF, ifn, new_node(ND_ELSE, stm, stmt()));
+        } else node = new_node(ND_IF, ifn, new_node(ND_ELSE, stm, NULL));
+    } else if (consume_keyword("while")) {
+        expected("(");
+        Node *ifn = expr();
+        expected(")");
+        node = new_node(ND_WHILE, ifn, stmt());
+    } else if (consume_keyword("for")) {
+        expected("(");
+        Node *for1 = NULL, *for2 = NULL, *for3 = NULL;
+        if (current->next->str != ";") 
+            for1 = expr();
+        expected(";");
+        if (current->next->str != ";") 
+            for2 = expr();
+        expected(";");
+        if (current->next->str != ";") 
+            for3 = expr(); 
+        expected(")");
+        node = new_node(ND_FOR, new_node(ND_FOR1, for1, for2), new_node(ND_FOR2, for3, stmt()));
+    } else if (consume_keyword("return")) {
+        node = new_node(ND_RETURN, expr(), NULL);
+        expected(";");
+    } else {
+        node = expr();
+        expected(";");
+    }
+
     return node;
 }
 

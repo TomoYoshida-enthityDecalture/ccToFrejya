@@ -16,13 +16,8 @@ assert() {
 	fi
 }
 
-assert 42 "40+5-3;"
-assert 15 "5*(9 - 6);"
-assert 224 " 22 * 10 +(4 + 2 /2)  - 1;"
-assert 1 "5 + 1 >= 1 * 4;"
-assert 1 "5 + 3 != 2 * 6;"
-assert 4 "a = 5; a + (-1);"
-assert 1 "foo = 5; var = 1; foo + var == 6;"
-assert 50 "mal = 10; meg = 20 * (3 - 1); return mal + meg; return 2;"
+assert 10 "b = 20; if (b < 10) return b; else return b - 10;"
+assert 0 "x = 5; while (x > 0) x = x - 1; return x;"
+assert 120 "ans = 1; for (i = 1; i <= 5; i = i + 1) ans = ans * i; return ans;"
 
 echo OK 

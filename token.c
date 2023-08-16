@@ -63,8 +63,9 @@ int consume_indent_len() {
     return len;
 }
 
-bool consume_return() {
-    if (current->type != TK_RETURN) return false;
+bool consume_keyword(char *op) {
+    if (current->type != TK_KEYWORD || strlen(op) != current->len 
+    || memcmp(current->str, op, current->len)) return false;
     current = current->next;
     return true;
 }
@@ -110,8 +111,20 @@ Token *tokenize(char *p) {
         || *p == '=' || *p == ';') {
             cur = new_token(TK_RESERVED, cur, p++, 1);
         } else if (strncmp(p, "return", 6) == 0 && !isalpha(p[6]) && !isdigit(p[6]) && p[6] != '_' ) {
-            cur = new_token(TK_RETURN, cur, p, 6);
+            cur = new_token(TK_KEYWORD, cur, p, 6);
             p += 6;
+        } else if (strncmp(p, "if", 2) == 0 && !isalpha(p[2]) && !isdigit(p[2]) && p[2] != '_' ) {
+            cur = new_token(TK_KEYWORD, cur, p, 2);
+            p += 2;
+        } else if (strncmp(p, "else", 4) == 0 && !isalpha(p[4]) && !isdigit(p[4]) && p[4] != '_' ) {
+            cur = new_token(TK_KEYWORD, cur, p, 4);
+            p += 4;
+        } else if (strncmp(p, "while", 5) == 0 && !isalpha(p[5]) && !isdigit(p[5]) && p[5] != '_' ) {
+            cur = new_token(TK_KEYWORD, cur, p, 5);
+            p += 5;
+        } else if (strncmp(p, "for", 3) == 0 && !isalpha(p[3]) && !isdigit(p[3]) && p[3] != '_' ) {
+            cur = new_token(TK_KEYWORD, cur, p, 3);
+            p += 3;
         } else if (isalpha(*p)) {
             char *a = p;
             int i = 0;

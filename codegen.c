@@ -18,6 +18,7 @@ void gen_lval(Node *node) {
 }
 
 void gen(Node *node) {
+    static int label_num = 0;
     switch (node->type) {
         case ND_NUM:
             printf("    push %d\n", node->val);
@@ -35,6 +36,57 @@ void gen(Node *node) {
             printf("    pop rax\n");
             printf("    mov [rax], rdi\n");
             printf("    push rdi\n");
+            return;
+        case ND_IF:
+            gen(node->lhs);
+            printf("    pop rax\n");
+            printf("    cmp rax, 0\n");
+            gen(node->rhs);
+            return;
+        case ND_ELSE:
+            ++label_num;
+            if (node->rhs) {
+                printf("    je .Lelse%d\n", label_num);
+                gen(node->lhs);
+                printf("    jmp .Lend%d\n", label_num);
+                printf(".Lelse%d:\n", label_num);
+                gen(node->rhs);
+                printf(".Lend%d:\n", label_num);
+            } else {
+                printf("    je .Lend%d\n", label_num);
+                gen(node->lhs);
+                printf(".Lend%d:\n", label_num);
+            }
+            return;
+        case ND_WHILE:
+            ++label_num;
+            printf(".Lwbegin%d:\n", label_num);
+            gen(node->lhs);
+            printf("    pop rax\n");
+            printf("    cmp rax, 0\n");
+            printf("    je .Lwend%d\n", label_num);
+            gen(node->rhs);
+            printf("    jmp .Lwbegin%d\n", label_num);
+            printf(".Lwend%d:\n", label_num);
+            return;
+        case ND_FOR:
+            ++label_num;
+            gen(node->lhs);
+            gen(node->rhs);
+            return;
+        case ND_FOR1:
+            gen(node->lhs);
+            printf(".Lfbegin%d:\n", label_num);
+            gen(node->rhs);
+            printf("    pop rax\n");
+            printf("    cmp rax, 0\n");
+            printf("    je .Lfend%d\n", label_num);
+            return;
+        case ND_FOR2:
+            gen(node->rhs);
+            gen(node->lhs);
+            printf("    jmp .Lfbegin%d\n", label_num);
+            printf(".Lfend%d:\n", label_num);
             return;
         case ND_RETURN:
             gen(node->lhs);
