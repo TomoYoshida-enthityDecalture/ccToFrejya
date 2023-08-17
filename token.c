@@ -108,7 +108,7 @@ Token *tokenize(char *p) {
             p += 2;
         } else if (*p == '>' || *p == '<' || *p == '+' 
         || *p == '-' || *p == '*' || *p == '/' || *p == '(' || *p == ')'
-        || *p == '=' || *p == ';') {
+        || *p == '=' || *p == ';' || *p == '{' || *p == '}') {
             cur = new_token(TK_RESERVED, cur, p++, 1);
         } else if (strncmp(p, "return", 6) == 0 && !isalpha(p[6]) && !isdigit(p[6]) && p[6] != '_' ) {
             cur = new_token(TK_KEYWORD, cur, p, 6);

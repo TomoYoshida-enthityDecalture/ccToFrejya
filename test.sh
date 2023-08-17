@@ -19,5 +19,6 @@ assert() {
 assert 10 "b = 20; if (b < 10) return b; else return b - 10;"
 assert 0 "x = 5; while (x > 0) x = x - 1; return x;"
 assert 120 "ans = 1; for (i = 1; i <= 5; i = i + 1) ans = ans * i; return ans;"
+assert 55 "a = 10; ans = 0; while (a > 0) {ans = ans + a; a = a - 1;} return ans;"
 
 echo OK 

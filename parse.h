@@ -26,6 +26,7 @@ typedef enum {
     ND_ASSIGN,
     ND_IDENT,
     ND_LVAR,
+    ND_BLOCK,
     ND_IF,
     ND_ELSE,
     ND_WHILE,

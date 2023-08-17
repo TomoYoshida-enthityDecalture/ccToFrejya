@@ -88,9 +88,13 @@ void program() {
 }
 
 Node *stmt() {
-    Node *node;
+    Node *node = NULL;
 
-    if (consume_keyword("if")) {
+    if (consume("{")) {
+        while (!consume("}")) {
+            node = new_node(ND_BLOCK, node, stmt());
+        }
+    } else if (consume_keyword("if")) {
         expected("(");
         Node *ifn = expr();
         expected(")");
