@@ -58,7 +58,7 @@ char *consume_ident() {
     return str;
 }
 
-int consume_indent_len() {
+int consume_ident_len() {
     int len = current->len;
     return len;
 }

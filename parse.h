@@ -24,9 +24,9 @@ typedef enum {
     ND_MUL,
     ND_DIV,
     ND_ASSIGN,
-    ND_IDENT,
-    ND_LVAR,
+    ND_FUNC,
     ND_BLOCK,
+    ND_LVAR,
     ND_IF,
     ND_ELSE,
     ND_WHILE,
@@ -45,6 +45,7 @@ struct Node {
     Node *rhs;
     int val;
     int offset;
+    char *str;
 };
 
 //parse

@@ -64,7 +64,15 @@ Node *new_node_ident(char *val, int len) {
         locals = lvar;
     }
     
-    current = current->next;
+    return new;
+}
+
+Node *new_node_func(char *val, int len) {
+    Node *new = calloc(1, sizeof(Node));
+    new->type = ND_FUNC;
+    new->str = val;
+    new->val = len;
+
     return new;
 }
 
@@ -200,7 +208,14 @@ Node *primary() {
         expected(")");
         return node;
     } else if (expected_ident()) {
-        return new_node_ident(consume_ident(), consume_indent_len());
+        char *valstr = consume_ident();
+        int len = consume_ident_len();
+        current = current->next;
+        if (consume("(")) {
+            Node *node = new_node_func(valstr, len);
+            expected(")");
+            return node;      
+        } else return new_node_ident(valstr, len);
     } else {
         return new_node_num(expected_num());
     }
